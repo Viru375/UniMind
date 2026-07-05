@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniMind — Centralized Cross-AI Graph Memory Layer</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f172a; color: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .container { width: 100%; max-width: 850px; background: #1e293b; border-radius: 16px; border: 1px solid #334155; display: flex; flex-direction: column; height: 85vh; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5); overflow: hidden; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; background: #1e293b; border-bottom: 1px solid #334155; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand h2 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.025em; background: linear-gradient(to right, #38bdf8, #10b981); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .status-badge { background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #10b981; padding: 4px 10px; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .status-dot { width: 6px; height: 6px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+        .model-selector-wrapper { display: flex; align-items: center; gap: 10px; }
+        label { font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
+        select { padding: 10px 16px; border-radius: 8px; background: #0f172a; color: #f8fafc; border: 1px solid #334155; font-size: 0.9rem; cursor: pointer; outline: none; transition: border-color 0.2s; }
+        select:focus { border-color: #38bdf8; }
+        .chat-box { flex: 1; overflow-y: auto; padding: 24px; background: #0f172a; display: flex; flex-direction: column; gap: 16px; }
+        .message { padding: 14px 18px; border-radius: 12px; max-width: 75%; line-height: 1.5; font-size: 0.95rem; word-wrap: break-word; }
+        .system-msg { background: #1e293b; color: #94a3b8; font-size: 0.85rem; text-align: center; max-width: 100%; margin: 0 auto; border: 1px dashed #334155; }
+        .user-msg { background: #2563eb; color: #ffffff; align-self: flex-end; border-bottom-right-radius: 4px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }
+        .ai-msg { background: #1e293b; color: #e2e8f0; align-self: flex-start; border-bottom-left-radius: 4px; border: 1px solid #334155; }
+        .ai-meta { font-size: 0.75rem; color: #64748b; margin-bottom: 4px; display: flex; gap: 8px; }
+        .input-area { padding: 20px 24px; background: #1e293b; border-top: 1px solid #334155; display: flex; gap: 12px; align-items: center; }
+        input { flex: 1; padding: 14px 20px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: #f8fafc; font-size: 0.95rem; outline: none; transition: all 0.2s; }
+        input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); }
+        button { background: linear-gradient(to right, #10b981, #059669); color: white; border: none; padding: 14px 28px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; font-weight: 600; transition: transform 0.1s, opacity 0.2s; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); }
+        button:hover { opacity: 0.95; }
+        button:active { transform: scale(0.98); }
+        button:disabled { background: #475569; cursor: not-allowed; box-shadow: none; opacity: 0.6; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="brand">
+            <h2>🧠 UniMind Hub</h2>
+            <div class="status-badge"><div class="status-dot"></div> Central Local Mesh Online</div>
+        </div>
+        <div class="model-selector-wrapper">
+            <label for="modelSelect">Active Node Intercept:</label>
+           <select id="modelSelect">
+   		 <option value="ollama/llama3.2">Gemini Mesh Instance</option>
+   		 <option value="ollama/llama3.2">Claude Mesh Instance</option>
+    		<option value="ollama/llama3.2">OpenAI Mesh Instance</option>
+         </select>
+        </div>
+    </div>
+
+    <div class="chat-box" id="chatBox">
+        <div class="message system-msg">
+            💡 <b>Ubiquitous Memory Engine Working:</b> Switch between different AI framework proxies in the dropdown above at any point during your dialogue. Cognee will maintain graph structures under the hood, instantly forwarding past shared memories to the next target client execution frame.
+        </div>
+    </div>
+
+    <div class="input-area">
+        <input type="text" id="userInput" placeholder="Type a message or state an info parameter..." onkeypress="handleKeyPress(event)">
+        <button id="sendBtn" onclick="sendMessage()">Send Frame</button>
+    </div>
+</div>
+
+<script>
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') {
+            sendMessage();
+        }
+    }
+
+    async function sendMessage() {
+        const inputEl = document.getElementById('userInput');
+        const boxEl = document.getElementById('chatBox');
+        const modelEl = document.getElementById('modelSelect');
+        const btnEl = document.getElementById('sendBtn');
+        const text = inputEl.value.trim();
+        
+        if (!text) return;
+
+        // Render user dialogue state to interface
+        boxEl.innerHTML += `<div class="message user-msg">${text}</div>`;
+        inputEl.value = '';
+        boxEl.scrollTop = boxEl.scrollHeight;
+
+        // Set layout to processing state
+        inputEl.disabled = true;
+        btnEl.disabled = true;
+        
+        const selectedModelName = modelEl.options[modelEl.selectedIndex].text;
+
+        try {
+            // Asynchronous transaction hook execution dispatch
+            const response = await fetch('http://127.0.0.1:8000/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    user_id: "viru_375",
+                    session_id: "ubiquitous_hackathon_demo",
+                    model_choice: modelEl.value,
+                    user_prompt: text
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('API server boundary returned exception context.');
+            }
+
+            const data = await response.json();
+            
+            let memoryIndicator = data.memory_injected 
+                ? `<span style="color: #38bdf8; font-weight: 600;">🧠 Graph Memory Injected</span>` 
+                : `<span style="color: #64748b;">🆕 Constructing Graph Base...</span>`;
+
+            boxEl.innerHTML += `
+                <div style="align-self: flex-start; display: flex; flex-direction: column; max-width: 75%;">
+                    <div class="ai-meta">🤖 Node: ${selectedModelName} | ${memoryIndicator}</div>
+                    <div class="message ai-msg">${data.ai_reply}</div>
+                </div>
+            `;
+            
+        // Fixed Bug 1: Corrected syntax structure inside catch scope
+        } catch (e) {
+            boxEl.innerHTML += `
+                <div class="message system-msg" style="color: #ef4444; border-color: #ef4444; background: rgba(239, 68, 68, 0.05);">
+                    ❌ Transaction Boundary Fault: Unable to hit ASGI channel route at localhost:8000. Verify terminal state is live.
+                </div>
+            `;
+        } finally {
+            inputEl.disabled = false;
+            btnEl.disabled = false;
+            inputEl.focus();
+            boxEl.scrollTop = boxEl.scrollHeight;
+        }
+    }
+</script>
+</body>
+</html>
